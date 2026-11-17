@@ -1,20 +1,23 @@
 ﻿# 🎬 Smart Video Reward Telegram Bot for Bots.Business
 
-A production-ready Telegram Video Bot built specifically for **[Bots.Business](https://app.bots.business/)** using **Bot JavaScript (BJS)**.
+A production-ready, feature-rich Telegram Video Streaming & Monetization Bot built specifically for **[Bots.Business](https://app.bots.business/)** using **Bot JavaScript (BJS)**.
 
 ---
 
-## 🌟 Key Features Overview
+## 🌟 Upgraded Key Features
 
 ### 👤 1. Normal User Panel
-- **🎬 Watch Videos:** Streams native video in Telegram video player (`supports_streaming: true`).
+- **🎬 Watch Videos:** Streams native video directly inside Telegram (`supports_streaming: true`).
 - **🎁 Free Video System:** Every new user gets their **first 2 videos completely FREE** (0 points deducted).
 - **💰 3rd Video Onwards:** Video access requires **5 Points per video** (Admin configurable).
-- **⚡ No Limits:** No daily limits and no daily resets. Users can watch as many videos as their points allow.
-- **💰 My Points Dashboard (`/my_points`):** Live points balance, free videos used (X/2), total points earned/spent, and real-time transaction history.
-- **🎁 Refer & Earn (`/referral`):** Personal referral link with instant 1-click Telegram share button. Earns **10 Points per referral**!
+- **🎁 Daily Bonus & Streaks (`/daily_bonus`):** Free points every 24 hours with active streak rewards (+2 for 3 days, +5 for 7 days).
+- **📂 Browse by Categories (`/categories`):** Explore videos organized by categories with real-time video counts and category-specific playback.
+- **🎲 Random Video Mode (`/random_video`):** Instant surprise video delivery from the library.
+- **🏆 Community Leaderboard (`/leaderboard`):** Real-time Top 10 referrers ranking with personal user rank and metrics.
+- **💰 My Points Dashboard (`/my_points`):** Live balance, free videos used (X/2), total earned/spent, daily bonus status, and transaction history.
+- **🎁 Refer & Earn (`/referral`):** Personal referral link with 1-click Telegram share button. Earns **10 Points per referral**!
 - **💳 Buy Points (`/buy_points`):** Dynamic UPI QR code generator starting at **₹10 = 100 Points**.
-- **ℹ️ Help Center (`/help`):** Dynamic admin contact link and guide.
+- **ℹ️ Help Center (`/help`):** Dynamic admin contact profile and support guide.
 
 ---
 
@@ -27,7 +30,7 @@ A production-ready Telegram Video Bot built specifically for **[Bots.Business](h
   - Self-referrals strictly blocked.
   - Duplicate accounts prevented.
   - Only genuine first-time users award points to their referrer.
-- **Instant Referral Notifications:** Referrers receive an immediate Telegram message whenever a friend joins through their link.
+- **Instant Notifications:** Referrers receive an immediate Telegram message whenever a friend joins through their link.
 
 ---
 
@@ -58,6 +61,8 @@ A production-ready Telegram Video Bot built specifically for **[Bots.Business](h
 ### 🛠 5. Master Administrator Panel (`9250034188`)
 - **Single & Bulk Video Upload:** Direct MP4/MOV upload with batch processing and duplicate detection.
 - **Points Management:** Adjust points per referral, video cost, add/deduct points from any user by ID.
+- **Daily Bonus Configuration:** Change daily bonus points or toggle on/off.
+- **Global Analytics (`/admin_stats`):** Live dashboard showing registered users, views, payments, and points distributed.
 - **Payment Management:** Review pending screenshot submissions, approve or reject with custom reason.
 - **UPI & QR Configuration:** Change UPI ID and Payee Name anytime.
 - **Pricing Management:** Add, edit, or delete coin pricing packages.

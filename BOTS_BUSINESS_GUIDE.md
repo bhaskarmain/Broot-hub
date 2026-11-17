@@ -1,4 +1,4 @@
-﻿# 🚀 BOTS.BUSINESS (https://app.bots.business/) SETUP GUIDE
+# 🚀 BOTS.BUSINESS (https://app.bots.business/) SETUP GUIDE
 
 A complete guide on deploying and running your **Smart Video Reward Telegram Bot** on **[Bots.Business](https://app.bots.business/)** using **Bot JavaScript (BJS)**.
 

@@ -107,8 +107,16 @@ if (!isRegistered) {
 }
 
 // 3. Force Channels Check for normal users
-let primaryAdmin = 9250034188;
-let isAdmin = (user.telegramid == primaryAdmin || user.telegramid == String(primaryAdmin));
+let primaryAdmin = Bot.getProperty("admin_id") || 9250034188;
+let adminList = Bot.getProperty("admin_ids") || [primaryAdmin];
+let isAdmin = false;
+for (let a = 0; a < adminList.length; a++) {
+  if (user.telegramid == adminList[a] || user.telegramid == String(adminList[a])) {
+    isAdmin = true;
+    break;
+  }
+}
+
 let channels = Bot.getProperty("force_channels") || [];
 let activeChannels = [];
 for (let i = 0; i < channels.length; i++) {
@@ -120,29 +128,46 @@ if (!isAdmin && activeChannels.length > 0 && params !== "dashboard") {
   return;
 }
 
-// 4. Render Main Menu Dashboard Directly
+// 4. Render Upgraded Main Menu Dashboard
 let buttons = [
   [
-    { title: "🎬 Get Video", command: "/get_video", style: "primary" }
+    { title: "🎬 Get Video", command: "/get_video", style: "primary" },
+    { title: "🎲 Random Video", command: "/random_video", style: "primary" }
+  ],
+  [
+    { title: "📂 Categories", command: "/categories", style: "primary" },
+    { title: "🎁 Daily Bonus", command: "/daily_bonus", style: "primary" }
   ],
   [
     { title: "💰 My Points", command: "/my_points", style: "primary" },
-    { title: "🎁 Refer & Earn", command: "/referral", style: "primary" }
+    { title: "👥 Refer & Earn", command: "/referral", style: "primary" }
   ],
   [
     { title: "💳 Buy Points", command: "/buy_points", style: "primary" },
-    { title: "ℹ️ Help", command: "/help", style: "primary" }
+    { title: "🏆 Leaderboard", command: "/leaderboard", style: "primary" }
+  ],
+  [
+    { title: "ℹ️ Help & Support", command: "/help", style: "primary" }
   ]
 ];
 
-// Show Admin button only for authorized admin 9250034188
-if (user.telegramid == 9250034188 || user.telegramid == "9250034188") {
+// Show Admin button for authorized admins
+if (isAdmin) {
   buttons.push([{ title: "🛠 Open Admin Panel", command: "/admin", style: "primary" }]);
 }
 
 let freeUsed = User.getProperty("free_videos_used") || 0;
 let freeLeft = Math.max(0, 2 - freeUsed);
-let userPoints = Bot.getProperty("points_" + user.telegramid) || User.getProperty("points") || 0;
+let userPoints = Bot.getProperty("points_" + user.telegramid);
+if (userPoints === null || userPoints === undefined) {
+  userPoints = User.getProperty("points") || 0;
+}
+
+// Bonus status preview
+let now = Date.now();
+let lastClaim = User.getProperty("last_bonus_claim_time") || 0;
+let bonusAvailable = (now - lastClaim >= 24 * 60 * 60 * 1000);
+let bonusBadge = bonusAvailable ? "🎁 *Daily Bonus:* Available Now!" : "⏳ *Daily Bonus:* Claimed Today";
 
 let welcomeText =
   "👋 *Welcome, " + (user.first_name || "Friend") + "!*\n\n" +
@@ -150,11 +175,14 @@ let welcomeText =
   "━━━━━━━━━━━━━━━━━━━━━\n" +
   "🎁 *Free Videos Left:* *" + freeLeft + " of 2 Free Videos*\n" +
   "💰 *My Points Balance:* *" + userPoints + " Points*\n" +
+  bonusBadge + "\n" +
   "━━━━━━━━━━━━━━━━━━━━━\n" +
-  "📌 *How it works:*\n" +
-  "• 🎁 *First 2 Videos FREE:* Tap 'Get Video' to watch 2 free videos!\n" +
-  "• 👥 *Refer & Earn:* Invite friends to get *10 Points per referral*!\n" +
-  "• 💳 *Buy Points:* Instant UPI starting at *₹10 = 100 Points*.\n\n" +
-  "Tap *🎬 Get Video* below to get your video 👇";
+  "📌 *Key Features:*\n" +
+  "• 🎁 *First 2 Videos FREE:* Stream right away with 0 points deducted!\n" +
+  "• 🎁 *Daily Bonus:* Tap *Daily Bonus* to claim free daily points.\n" +
+  "• 📂 *Categories & Random:* Explore by genre or get a random video.\n" +
+  "• 👥 *Refer & Earn:* Earn *10 Points* for every invited friend.\n" +
+  "• 💳 *Buy Points:* Instant UPI packages starting at *₹10 = 100 Points*.\n\n" +
+  "Tap *🎬 Get Video* below to start streaming 👇";
 
 Bot.sendInlineKeyboard(buttons, welcomeText);

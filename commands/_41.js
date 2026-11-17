@@ -12,10 +12,8 @@ CMD*/
 
 if (!user) return;
 
-var ADMIN_ID = 9250034188;
-
-// ===== OFFICIAL CHANNEL =====
-var CHANNEL = "@botadminshere";
+var ADMIN_ID = Bot.getProperty("admin_id") || 9250034188;
+var CHANNEL = Bot.getProperty("official_channel") || "";
 
 function escapeHtml(str) {
   if (!str) return "";
@@ -41,12 +39,9 @@ if (!email && message) {
 if (!email || !email.includes("@") || !email.includes(".")) {
   Bot.setProperty("waiting_clone_email_" + user.telegramid, true, "boolean");
   Bot.sendMessage(
-    '<tg-emoji emoji-id="5416117059207572332">❌</tg-emoji> ' +
-    '<b>Invalid Email Address!</b>\n\n' +
-
-    '<tg-emoji emoji-id="5416081784641168838">📧</tg-emoji> ' +
-    '<b>Example:</b> <code>/41 google@gmail.com</code>\n\n' +
-    '👉 <i>Or simply send your Bots.Business email address now:</i>',
+    '❌ <b>Invalid Email Address!</b>\n\n' +
+    '📧 <b>Example:</b> <code>/41 user@gmail.com</code>\n\n' +
+    '👉 <i>Please send your Bots.Business registered email address:</i>',
     {
       parse_mode: "HTML"
     }
@@ -74,27 +69,20 @@ var now = new Date();
 var dateStr = now.toISOString().replace("T", " ").slice(0, 19);
 
 // ===== SUCCESS MESSAGE =====
+var channelSection = CHANNEL ? ('📢 <b>Official Channel:</b> ' + CHANNEL + '\n\n') : '';
+
 Bot.sendMessage(
-  '<tg-emoji emoji-id="5375338737028841420">✅</tg-emoji> ' +
-  '<b>Bot Successfully Sent!</b>\n\n' +
-
-  '<tg-emoji emoji-id="5276032951342088188">📩</tg-emoji> ' +
-  '<b>Email:</b> <code>' + escapeHtml(email) + '</code>\n\n' +
-
-  '<tg-emoji emoji-id="5416081784641168838">📢</tg-emoji> ' +
-  '<b>Official Channel:</b> ' + CHANNEL + '\n\n' +
-
-  '<tg-emoji emoji-id="5460795800101594035">🙏</tg-emoji> ' +
-  'Please join our official channel for updates &amp; support.\n\n' +
-
-  '🎁 <b>ले जा गरीब ' + userName + '! 🚀</b>',
+  '✅ <b>Bot Successfully Sent to Your Bots.Business Account!</b>\n\n' +
+  '📩 <b>Registered Email:</b> <code>' + escapeHtml(email) + '</code>\n\n' +
+  channelSection +
+  '🚀 <b>Congratulations ' + userName + '! Your bot copy has been deployed.</b>',
   {
     parse_mode: "HTML"
   }
 );
 
 // ===== NOTIFY ADMIN =====
-var adminNotice = "🤖 <b>NEW BOT CLONE CLAIMED!</b>\n" +
+var adminNotice = "🤖 <b>BOT CLONE / TRANSFER REQUEST</b>\n" +
                   "━━━━━━━━━━━━━━━━━━━━━━\n\n" +
                   "👤 <b>Claimed By:</b> <a href=\"" + uDirectUrl + "\">" + userName + "</a> (" + userHandle + ")\n" +
                   "🆔 <b>Chat ID:</b> <code>" + user.telegramid + "</code>\n" +
@@ -102,14 +90,15 @@ var adminNotice = "🤖 <b>NEW BOT CLONE CLAIMED!</b>\n" +
                   "⏰ <b>Claim Time:</b> <code>" + dateStr + "</code>\n" +
                   "━━━━━━━━━━━━━━━━━━━━━━";
 
-Api.sendMessage({
-  chat_id: ADMIN_ID,
-  text: adminNotice,
-  parse_mode: "HTML",
-  reply_markup: {
-    inline_keyboard: [[
-      { text: "✉️ Direct Message User", url: uDirectUrl, style: "primary" }
-    ]]
-  }
-});
-
+try {
+  Api.sendMessage({
+    chat_id: ADMIN_ID,
+    text: adminNotice,
+    parse_mode: "HTML",
+    reply_markup: {
+      inline_keyboard: [[
+        { text: "✉️ Direct Message User", url: uDirectUrl, style: "primary" }
+      ]]
+    }
+  });
+} catch (e) {}

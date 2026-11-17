@@ -25,6 +25,10 @@ if (params && params.trim() === "apply") {
   Bot.setProperty("admin_payee_name", "Video Bot", "string");
   Bot.setProperty("force_channels_enabled", true, "boolean");
   Bot.setProperty("referral_enabled", true, "boolean");
+  Bot.setProperty("daily_bonus_enabled", true, "boolean");
+  Bot.setProperty("daily_bonus_points", 5, "integer");
+  Bot.setProperty("admin_id", 9250034188, "integer");
+  Bot.setProperty("admin_ids", [9250034188], "json");
   Bot.setProperty("storage_channel_id", "-1003856912131", "string");
 
   let defaultPackages = [

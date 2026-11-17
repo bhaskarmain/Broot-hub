@@ -10,10 +10,17 @@ aliases:
 group: 
 CMD*/
 
-let primaryAdmin = 9250034188;
-Bot.setProperty("admin_ids", [primaryAdmin], "json");
+let primaryAdmin = Bot.getProperty("admin_id") || 9250034188;
+let adminList = Bot.getProperty("admin_ids") || [primaryAdmin];
+let isAdmin = false;
+for (let a = 0; a < adminList.length; a++) {
+  if (user.telegramid == adminList[a] || user.telegramid == String(adminList[a])) {
+    isAdmin = true;
+    break;
+  }
+}
 
-if (user.telegramid != primaryAdmin && user.telegramid != String(primaryAdmin)) {
+if (!isAdmin) {
   Bot.sendMessage("🚫 *Access Denied:* You are not authorized to access the Admin Panel.");
   return;
 }
@@ -51,6 +58,10 @@ let buttons = [
   [
     { title: "🎬 Video Cost Points", command: "/admin_set_vid_points", style: "primary" },
     { title: "🎁 Referral Settings", command: "/admin_ref_settings", style: "primary" }
+  ],
+  [
+    { title: "🎁 Daily Bonus Settings", command: "/admin_bonus_settings", style: "primary" },
+    { title: "📊 Global Analytics", command: "/admin_stats", style: "primary" }
   ],
   [
     { title: "📢 Force Channels", command: "/admin_channels", style: "primary" },
