@@ -1,4 +1,4 @@
-﻿/*CMD
+/*CMD
 command: /admin_default_settings
 help: Configure or Reset Default System Settings and Region
 need_reply: false

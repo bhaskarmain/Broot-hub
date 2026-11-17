@@ -294,15 +294,19 @@ if (user) {
       if (activeOrder) {
         let largestPhoto = photos[photos.length - 1];
         let photoFileId = largestPhoto.file_id;
+        let isVipOrder = (activeOrder.type === "vip");
 
         let payments = Bot.getProperty("payment_requests") || [];
         let newPayment = {
           order_id: activeOrder.order_id,
+          order_type: activeOrder.type || "points",
+          pkg_name: activeOrder.pkg_name || "",
+          days: activeOrder.days || 0,
           user_id: user.telegramid,
           user_name: user.first_name || "User",
           user_username: user.username || "",
           amount: activeOrder.amount,
-          points: activeOrder.points,
+          points: activeOrder.points || 0,
           upi_id: activeOrder.upi_id,
           photo_file_id: photoFileId,
           status: "pending",
@@ -319,31 +323,39 @@ if (user) {
         User.setProperty("active_order", null, "json");
 
         // Send confirmation to User
+        let userPlanLine = isVipOrder
+          ? "👑 *Purchased Plan:* *" + (activeOrder.pkg_name || "VIP Pass") + "*\n"
+          : "🎁 *Purchased Points:* *" + newPayment.points + " Points*\n";
+
         let userConfirmText =
           "Your payment screenshot has been submitted successfully!\n\n" +
           "Please wait while our admin verifies your payment.\n\n" +
-          "Your payment will be verified within 2 hours. Once approved, your purchased points will be automatically added to your account.\n\n" +
+          "Your payment will be verified within 2 hours. Once approved, your order will be activated automatically.\n\n" +
           "Thank you for your patience!\n\n" +
           "━━━━━━━━━━━━━━━━━━━━━\n" +
           "🧾 *Order ID:* `" + newPayment.order_id + "`\n" +
           "💰 *Amount Paid:* *₹" + newPayment.amount + "*\n" +
-          "🎁 *Purchased Points:* *" + newPayment.points + " Points*";
+          userPlanLine;
 
         let userButtons = [
-          [{ title: "💰 My Points", command: "/my_points" }],
+          [{ title: "💰 My Dashboard", command: "/my_points" }],
           [{ title: "🏠 Main Menu", command: "/start" }]
         ];
         Bot.sendInlineKeyboard(userButtons, userConfirmText);
 
         // Notify Master Admin
         let primaryAdmin = 9250034188;
+        let adminItemLine = isVipOrder
+          ? "👑 *Plan:* *" + (activeOrder.pkg_name || "VIP Pass") + "*\n"
+          : "🎁 *Points to Credit:* *" + newPayment.points + " Points*\n";
+
         let adminCaption =
           "🔔 *New Payment Request Received!*\n\n" +
           "━━━━━━━━━━━━━━━━━━━━━\n" +
           "🧾 *Order ID:* `" + newPayment.order_id + "`\n" +
           "👤 *User:* " + newPayment.user_name + " (`" + newPayment.user_id + "`)" + (newPayment.user_username ? " (@" + newPayment.user_username + ")" : "") + "\n" +
           "💰 *Amount:* *₹" + newPayment.amount + "*\n" +
-          "🎁 *Points to Credit:* *" + newPayment.points + " Points*\n" +
+          adminItemLine +
           "━━━━━━━━━━━━━━━━━━━━━\n" +
           "Verify the screenshot below and approve or reject:";
 
@@ -363,7 +375,7 @@ if (user) {
             reply_markup: {
               inline_keyboard: [
                 [
-                  { text: "✅ Approve (+" + newPayment.points + " pts)", callback_data: "/admin_approve_pay " + newPayment.order_id, style: "primary" },
+                  { text: isVipOrder ? "✅ Approve VIP Pass" : "✅ Approve (+" + newPayment.points + " pts)", callback_data: "/admin_approve_pay " + newPayment.order_id, style: "primary" },
                   { text: "❌ Reject", callback_data: "/admin_reject_pay " + newPayment.order_id, style: "primary" }
                 ]
               ]
@@ -387,6 +399,28 @@ if (user) {
     }
     if (currentCmd.indexOf("@") > -1 && currentCmd.indexOf(".") > -1) {
       Bot.runCommand("/41 " + currentCmd);
+      return false;
+    }
+  }
+
+  // 6b. Check if user is awaiting promo redeem code
+  if (User.getProperty("awaiting_redeem_code")) {
+    let currentInput = "";
+    if (typeof message === "string") currentInput = message.trim();
+    else if (request && request.message && request.message.text) currentInput = request.message.text.trim();
+    if (currentInput && !currentInput.startsWith("/")) {
+      Bot.runCommand("/redeem " + currentInput);
+      return false;
+    }
+  }
+
+  // 6c. Check if user is awaiting search query
+  if (User.getProperty("awaiting_search_query")) {
+    let currentInput = "";
+    if (typeof message === "string") currentInput = message.trim();
+    else if (request && request.message && request.message.text) currentInput = request.message.text.trim();
+    if (currentInput && !currentInput.startsWith("/")) {
+      Bot.runCommand("/search " + currentInput);
       return false;
     }
   }
@@ -442,7 +476,8 @@ if (user) {
   }
 
   // 8. Force Channels Membership Enforcement for Normal Users
-  if (!isAdmin) {
+  let isVip = Bot.getProperty("user_vip_lifetime_" + user.telegramid) || (Bot.getProperty("user_vip_until_" + user.telegramid) > Date.now());
+  if (!isAdmin && !isVip) {
     let channels = Bot.getProperty("force_channels") || [];
     let activeFc = [];
     for (let f = 0; f < channels.length; f++) {

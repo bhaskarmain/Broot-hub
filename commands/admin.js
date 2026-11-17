@@ -1,4 +1,4 @@
-﻿/*CMD
+/*CMD
 command: /admin
 help: Administrative Control Dashboard with Full Modular Controls
 need_reply: false
@@ -56,12 +56,16 @@ let buttons = [
     { title: "💰 Points Management", command: "/admin_points_menu", style: "primary" }
   ],
   [
-    { title: "🎬 Video Cost Points", command: "/admin_set_vid_points", style: "primary" },
-    { title: "🎁 Referral Settings", command: "/admin_ref_settings", style: "primary" }
+    { title: "🎟 Promo Codes", command: "/admin_promo", style: "primary" },
+    { title: "👑 Grant VIP Pass", command: "/admin_vip_grant", style: "primary" }
   ],
   [
     { title: "🎁 Daily Bonus Settings", command: "/admin_bonus_settings", style: "primary" },
     { title: "📊 Global Analytics", command: "/admin_stats", style: "primary" }
+  ],
+  [
+    { title: "🎬 Video Cost Points", command: "/admin_set_vid_points", style: "primary" },
+    { title: "🎁 Referral Settings", command: "/admin_ref_settings", style: "primary" }
   ],
   [
     { title: "📢 Force Channels", command: "/admin_channels", style: "primary" },

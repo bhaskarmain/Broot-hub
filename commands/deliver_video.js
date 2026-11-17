@@ -1,6 +1,6 @@
-﻿/*CMD
+/*CMD
 command: /deliver_video
-help: Continuous video rotation with category support, random delivery, new video priority and transaction-safe delivery
+help: Continuous video rotation with category support, random delivery, VIP bypass, favorites and transaction-safe delivery
 need_reply: false
 auto_retry_time: 
 folder: 
@@ -30,7 +30,7 @@ if (now - lastClick < 1500) {
 }
 User.setProperty("last_get_video_click", now, "integer");
 
-// 3. User Identity & Points Setup
+// 3. User Identity & VIP Setup
 let primaryAdmin = Bot.getProperty("admin_id") || 9250034188;
 let adminList = Bot.getProperty("admin_ids") || [primaryAdmin];
 let isAdmin = false;
@@ -41,34 +41,40 @@ for (let a = 0; a < adminList.length; a++) {
   }
 }
 
+let isVipLifetime = User.getProperty("vip_lifetime") || Bot.getProperty("user_vip_lifetime_" + user.telegramid);
+let vipUntil = User.getProperty("vip_until") || Bot.getProperty("user_vip_until_" + user.telegramid) || 0;
+let isVip = isVipLifetime || (vipUntil > now);
+
 let freeUsed = User.getProperty("free_videos_used") || 0;
 let userPoints = Bot.getProperty("points_" + user.telegramid);
 if (userPoints === null || userPoints === undefined) {
   userPoints = User.getProperty("points") || 0;
 }
 let videoCost = Bot.getProperty("points_per_video") || 5;
-let isFreeVideo = (!isAdmin && freeUsed < 2);
+let isFreeVideo = (!isAdmin && !isVip && freeUsed < 2);
 
 // 4. Points Verification BEFORE Queue Progression
-if (!isAdmin && !isFreeVideo && userPoints < videoCost) {
+if (!isAdmin && !isVip && !isFreeVideo && userPoints < videoCost) {
   let insufficientText =
     "⚠️ *Insufficient Points Balance!*\n\n" +
     "You need at least *" + videoCost + " Points* to stream this video.\n\n" +
     "💎 *Your Balance:* *" + userPoints + " Points*\n\n" +
-    "💡 *How to get more points:*\n" +
+    "💡 *Ways to watch:*\n" +
+    "• 👑 *Upgrade to VIP:* Get unlimited streaming forever via /vip\n" +
     "• 🎁 *Daily Bonus:* Collect free daily points via /daily_bonus\n" +
     "• 👥 *Refer Friends:* Earn *10 Points* for every invited user\n" +
     "• 💳 *Instant Recharge:* UPI packages starting from *₹10*";
 
   let buttons = [
     [
-      { title: "🎁 Daily Bonus", command: "/daily_bonus", style: "primary" },
-      { title: "👥 Refer & Earn", command: "/referral", style: "primary" }
+      { title: "👑 Get VIP Pass", command: "/vip", style: "primary" },
+      { title: "🎁 Daily Bonus", command: "/daily_bonus", style: "primary" }
     ],
     [
-      { title: "💳 Buy Points", command: "/buy_points", style: "primary" },
-      { title: "🏠 Main Menu", command: "/start", style: "primary" }
-    ]
+      { title: "👥 Refer & Earn", command: "/referral", style: "primary" },
+      { title: "💳 Buy Points", command: "/buy_points", style: "primary" }
+    ],
+    [{ title: "🏠 Main Menu", command: "/start", style: "primary" }]
   ];
 
   Bot.sendInlineKeyboard(buttons, insufficientText);
@@ -127,7 +133,6 @@ for (let i = 0; i < targetPool.length; i++) {
 }
 
 if (mode === "random") {
-  // Random Video mode
   let pool = brandNewVideos.length > 0 ? brandNewVideos : targetPool;
   nextVideo = pool[Math.floor(Math.random() * pool.length)];
 } else if (brandNewVideos.length > 0) {
@@ -142,7 +147,6 @@ if (mode === "random") {
     }
   }
 
-  // If all videos in library/pool have been delivered in this cycle, advance to next cycle!
   if (remainingInCycle.length === 0) {
     cycleNumber = cycleNumber + 1;
     User.setProperty("rotation_cycle", cycleNumber, "integer");
@@ -193,10 +197,12 @@ if (!nextVideo) {
   return;
 }
 
-// 7. Deduct Points or Increment Free Video Counter
+// 7. Deduct Points or Status Line
 let statusLine = "";
 if (isAdmin) {
   statusLine = "👑 *Admin Access:* Unlimited";
+} else if (isVip) {
+  statusLine = "👑 *VIP Member:* Unlimited Access ⭐ (0 pts)";
 } else if (isFreeVideo) {
   let newFree = freeUsed + 1;
   User.setProperty("free_videos_used", newFree, "integer");
@@ -266,6 +272,11 @@ let caption =
   "━━━━━━━━━━━━━━━━━━━━━\n" +
   "✨ _Enjoy watching!_";
 
+// Check if already in favorites
+let favIds = User.getProperty("favorite_videos") || [];
+let isFav = favIds.indexOf(nextVideo.id) > -1;
+let favBtnTitle = isFav ? "⭐ Favorited (Tap to Remove)" : "⭐ Save to Favorites";
+
 let inlineKeyboard = [];
 if (catFilter) {
   inlineKeyboard.push([
@@ -283,6 +294,11 @@ if (catFilter) {
     { text: "🎲 Random Video", callback_data: "/random_video", style: "primary" }
   ]);
 }
+
+inlineKeyboard.push([
+  { text: favBtnTitle, callback_data: "/fav_toggle " + nextVideo.id, style: "primary" },
+  { text: "⭐ My Favorites", callback_data: "/favorites", style: "primary" }
+]);
 
 inlineKeyboard.push([
   { text: "📂 Categories", callback_data: "/categories", style: "primary" },

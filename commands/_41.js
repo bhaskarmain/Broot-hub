@@ -1,4 +1,4 @@
-﻿/*CMD
+/*CMD
 command: /41
 help: Bot Clone / Transfer to Bots.Business Account
 need_reply: false

@@ -1,6 +1,6 @@
 ﻿/*CMD
 command: /admin_approve_pay
-help: Approve pending payment and credit points
+help: Approve pending payment and credit points or activate VIP
 need_reply: false
 auto_retry_time: 
 folder: 
@@ -10,8 +10,17 @@ aliases:
 group: 
 CMD*/
 
-let primaryAdmin = 9250034188;
-if (user.telegramid != primaryAdmin && user.telegramid != String(primaryAdmin)) {
+let primaryAdmin = Bot.getProperty("admin_id") || 9250034188;
+let adminList = Bot.getProperty("admin_ids") || [primaryAdmin];
+let isAdmin = false;
+for (let a = 0; a < adminList.length; a++) {
+  if (user.telegramid == adminList[a] || user.telegramid == String(adminList[a])) {
+    isAdmin = true;
+    break;
+  }
+}
+
+if (!isAdmin) {
   Bot.sendMessage("🚫 *Access Denied.*");
   return;
 }
@@ -55,7 +64,58 @@ payments[paymentIndex].status = "approved";
 payments[paymentIndex].reviewed_at = new Date().toISOString();
 Bot.setProperty("payment_requests", payments, "json");
 
-// Credit Points to User
+let isVipOrder = (pay.type === "vip" || pay.order_type === "vip");
+
+if (isVipOrder) {
+  let days = pay.days || 30;
+  if (days >= 9999) {
+    Bot.setProperty("user_vip_lifetime_" + pay.user_id, true, "boolean");
+  } else {
+    let now = Date.now();
+    let currentExpiry = Bot.getProperty("user_vip_until_" + pay.user_id) || now;
+    let baseTime = Math.max(now, currentExpiry);
+    let newExpiry = baseTime + (days * 24 * 60 * 60 * 1000);
+    Bot.setProperty("user_vip_until_" + pay.user_id, newExpiry, "integer");
+  }
+
+  // Notify user of VIP activation
+  try {
+    let userNotice =
+      "👑 *VIP Pass Activated!*\n\n" +
+      "━━━━━━━━━━━━━━━━━━━━━\n" +
+      "Your payment of *₹" + pay.amount + "* (Order ID: `" + pay.order_id + "`) has been verified and approved!\n\n" +
+      "🌟 *Plan:* *" + (pay.pkg_name || "VIP Membership") + "*\n" +
+      "✨ *Perks Unlocked:*\n" +
+      "• Unlimited Video Streaming (0 points deducted)\n" +
+      "• All force channel locks bypassed\n" +
+      "• Priority streaming speed\n" +
+      "━━━━━━━━━━━━━━━━━━━━━\n" +
+      "Tap below to start watching videos now 👇";
+
+    let userButtons = [
+      [{ title: "🎬 Get Video", command: "/get_video" }],
+      [{ title: "👑 VIP Status", command: "/vip" }]
+    ];
+    Bot.sendInlineKeyboardToChatWithId(pay.user_id, userButtons, userNotice);
+  } catch (e) {}
+
+  let adminButtons = [
+    [{ title: "📋 View Pending Payments", command: "/admin_payments" }],
+    [{ title: "🛠 Admin Dashboard", command: "/admin" }]
+  ];
+
+  Bot.sendInlineKeyboard(
+    adminButtons,
+    "✅ *VIP Payment Approved Successfully!*\n\n" +
+    "🧾 Order ID: `" + pay.order_id + "`\n" +
+    "👤 User ID: `" + pay.user_id + "`\n" +
+    "💰 Amount: *₹" + pay.amount + "*\n" +
+    "👑 VIP Plan: *" + (pay.pkg_name || "VIP Pass") + "* activated!"
+  );
+  return;
+}
+
+// Regular Points Credit to User
 let currentPoints = Bot.getProperty("points_" + pay.user_id) || 0;
 let newPoints = currentPoints + pay.points;
 Bot.setProperty("points_" + pay.user_id, newPoints, "integer");
@@ -89,9 +149,7 @@ try {
     [{ title: "💰 My Points", command: "/my_points" }]
   ];
   Bot.sendInlineKeyboardToChatWithId(pay.user_id, userButtons, userNotice);
-} catch (e) {
-  // If user chat unreachable
-}
+} catch (e) {}
 
 let adminButtons = [
   [{ title: "📋 View Pending Payments", command: "/admin_payments" }],
@@ -107,4 +165,3 @@ Bot.sendInlineKeyboard(
   "🎁 Points Credited: *" + pay.points + " Points*\n" +
   "💎 User New Total: *" + newPoints + " Points*"
 );
-

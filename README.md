@@ -1,4 +1,4 @@
-﻿# 🎬 Smart Video Reward Telegram Bot for Bots.Business
+# 🎬 Smart Video Reward Telegram Bot for Bots.Business
 
 A production-ready, feature-rich Telegram Video Streaming & Monetization Bot built specifically for **[Bots.Business](https://app.bots.business/)** using **Bot JavaScript (BJS)**.
 
@@ -10,11 +10,16 @@ A production-ready, feature-rich Telegram Video Streaming & Monetization Bot bui
 - **🎬 Watch Videos:** Streams native video directly inside Telegram (`supports_streaming: true`).
 - **🎁 Free Video System:** Every new user gets their **first 2 videos completely FREE** (0 points deducted).
 - **💰 3rd Video Onwards:** Video access requires **5 Points per video** (Admin configurable).
+- **👑 VIP Pass Club (`/vip`):** 7-Day, 30-Day, and Lifetime VIP Passes with unlimited video streaming, zero points deducted, and no channel locks.
+- **🎰 Lucky Spin Wheel (`/spin`):** Daily free spin wheel with rewards from 2 to 25 points (Mega Jackpot!). Extra spins available for 2 points.
+- **🎟 Redeem Gift Codes (`/redeem`):** Instant points redemption via admin promotional codes.
+- **⭐ Favorites Watchlist (`/favorites`):** 1-tap "Save to Favorites" under every video; re-watch your saved videos anytime with 0 points deducted.
+- **🔍 Video Library Search (`/search`):** Search videos by title or keyword with 1-click play buttons.
 - **🎁 Daily Bonus & Streaks (`/daily_bonus`):** Free points every 24 hours with active streak rewards (+2 for 3 days, +5 for 7 days).
 - **📂 Browse by Categories (`/categories`):** Explore videos organized by categories with real-time video counts and category-specific playback.
 - **🎲 Random Video Mode (`/random_video`):** Instant surprise video delivery from the library.
 - **🏆 Community Leaderboard (`/leaderboard`):** Real-time Top 10 referrers ranking with personal user rank and metrics.
-- **💰 My Points Dashboard (`/my_points`):** Live balance, free videos used (X/2), total earned/spent, daily bonus status, and transaction history.
+- **💰 My Points Dashboard (`/my_points`):** Live balance, VIP status, free videos used, daily bonus status, and transaction history.
 - **🎁 Refer & Earn (`/referral`):** Personal referral link with 1-click Telegram share button. Earns **10 Points per referral**!
 - **💳 Buy Points (`/buy_points`):** Dynamic UPI QR code generator starting at **₹10 = 100 Points**.
 - **ℹ️ Help Center (`/help`):** Dynamic admin contact profile and support guide.
@@ -35,11 +40,15 @@ A production-ready, feature-rich Telegram Video Streaming & Monetization Bot bui
 ---
 
 ### 💳 3. Dynamic UPI QR Payment System
-- **Packages:**
+- **Points Packages:**
   - ₹10 = 100 Points
   - ₹20 = 200 Points
   - ₹50 = 500 Points
   - ₹100 = 1000 Points
+- **VIP Pass Packages:**
+  - 7 Days VIP Pass = ₹49
+  - 30 Days VIP Pass = ₹149
+  - Lifetime VIP Pass = ₹399
 - **Dynamic QR Code:**
   - Prefilled with Admin's current UPI ID and exact package amount.
   - Compatible with Google Pay, PhonePe, Paytm, and BHIM.
@@ -47,7 +56,7 @@ A production-ready, feature-rich Telegram Video Streaming & Monetization Bot bui
   - User uploads payment screenshot directly in chat.
   - Status set to `pending` with unique Order ID.
   - Admin receives immediate notification with photo and 1-tap `[ ✅ Approve ]` and `[ ❌ Reject ]` buttons.
-  - On approval, points are credited automatically to user's balance without manual math.
+  - On approval, points or VIP status are credited automatically to user's balance without manual math.
 
 ---
 
@@ -55,15 +64,18 @@ A production-ready, feature-rich Telegram Video Streaming & Monetization Bot bui
 1. **Public Channel:** Verification via Channel Username (`@channelname`).
 2. **Private Channel:** Verification via Channel Chat ID (`-100...`) and Private Invite Link.
 3. **Private Request Channel:** User sends Join Request; pending join request is verified valid immediately without waiting for admin approval.
+*(Note: VIP Members and Admins automatically bypass all channel locks!)*
 
 ---
 
 ### 🛠 5. Master Administrator Panel (`9250034188`)
 - **Single & Bulk Video Upload:** Direct MP4/MOV upload with batch processing and duplicate detection.
 - **Points Management:** Adjust points per referral, video cost, add/deduct points from any user by ID.
+- **🎟 Promo Code Generator (`/admin_promo`):** Create and manage gift codes with custom limits and point rewards.
+- **👑 Manual VIP Grant (`/admin_vip_grant`):** Grant temporary or lifetime VIP membership to any user ID.
 - **Daily Bonus Configuration:** Change daily bonus points or toggle on/off.
 - **Global Analytics (`/admin_stats`):** Live dashboard showing registered users, views, payments, and points distributed.
-- **Payment Management:** Review pending screenshot submissions, approve or reject with custom reason.
+- **Payment Management:** Review pending screenshot submissions (both Points and VIP orders), approve or reject with custom reason.
 - **UPI & QR Configuration:** Change UPI ID and Payee Name anytime.
 - **Pricing Management:** Add, edit, or delete coin pricing packages.
 - **Force Channel Settings:** Add, remove, and toggle Public, Private, and Request channels.

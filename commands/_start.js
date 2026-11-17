@@ -1,4 +1,4 @@
-﻿/*CMD
+/*CMD
 command: /start
 help: Starts the bot and displays the main dashboard
 need_reply: false
@@ -106,7 +106,7 @@ if (!isRegistered) {
   }
 }
 
-// 3. Force Channels Check for normal users
+// 3. Force Channels Check (exempt for Admin and VIP)
 let primaryAdmin = Bot.getProperty("admin_id") || 9250034188;
 let adminList = Bot.getProperty("admin_ids") || [primaryAdmin];
 let isAdmin = false;
@@ -117,18 +117,22 @@ for (let a = 0; a < adminList.length; a++) {
   }
 }
 
+let isVipLifetime = User.getProperty("vip_lifetime") || Bot.getProperty("user_vip_lifetime_" + user.telegramid);
+let vipUntil = User.getProperty("vip_until") || Bot.getProperty("user_vip_until_" + user.telegramid) || 0;
+let isVip = isVipLifetime || (vipUntil > Date.now());
+
 let channels = Bot.getProperty("force_channels") || [];
 let activeChannels = [];
 for (let i = 0; i < channels.length; i++) {
   if (channels[i].enabled !== false) activeChannels.push(channels[i]);
 }
 
-if (!isAdmin && activeChannels.length > 0 && params !== "dashboard") {
+if (!isAdmin && !isVip && activeChannels.length > 0 && params !== "dashboard") {
   Bot.runCommand("/verify_step 0");
   return;
 }
 
-// 4. Render Upgraded Main Menu Dashboard
+// 4. Render Master Main Menu Dashboard
 let buttons = [
   [
     { title: "🎬 Get Video", command: "/get_video", style: "primary" },
@@ -136,17 +140,26 @@ let buttons = [
   ],
   [
     { title: "📂 Categories", command: "/categories", style: "primary" },
-    { title: "🎁 Daily Bonus", command: "/daily_bonus", style: "primary" }
+    { title: "🔍 Search Video", command: "/search", style: "primary" }
   ],
   [
-    { title: "💰 My Points", command: "/my_points", style: "primary" },
-    { title: "👥 Refer & Earn", command: "/referral", style: "primary" }
+    { title: "🎁 Daily Bonus", command: "/daily_bonus", style: "primary" },
+    { title: "🎰 Lucky Spin", command: "/spin", style: "primary" }
   ],
   [
-    { title: "💳 Buy Points", command: "/buy_points", style: "primary" },
-    { title: "🏆 Leaderboard", command: "/leaderboard", style: "primary" }
+    { title: "⭐ Favorites", command: "/favorites", style: "primary" },
+    { title: "🎟 Redeem Code", command: "/redeem", style: "primary" }
   ],
   [
+    { title: "👑 VIP Pass", command: "/vip", style: "primary" },
+    { title: "💰 My Points", command: "/my_points", style: "primary" }
+  ],
+  [
+    { title: "👥 Refer & Earn", command: "/referral", style: "primary" },
+    { title: "💳 Buy Points", command: "/buy_points", style: "primary" }
+  ],
+  [
+    { title: "🏆 Leaderboard", command: "/leaderboard", style: "primary" },
     { title: "ℹ️ Help & Support", command: "/help", style: "primary" }
   ]
 ];
@@ -163,26 +176,21 @@ if (userPoints === null || userPoints === undefined) {
   userPoints = User.getProperty("points") || 0;
 }
 
-// Bonus status preview
-let now = Date.now();
-let lastClaim = User.getProperty("last_bonus_claim_time") || 0;
-let bonusAvailable = (now - lastClaim >= 24 * 60 * 60 * 1000);
-let bonusBadge = bonusAvailable ? "🎁 *Daily Bonus:* Available Now!" : "⏳ *Daily Bonus:* Claimed Today";
+let memberBadge = isVip ? "👑 *Membership:* ⭐ VIP Member (Unlimited)" : "🎁 *Free Videos Left:* *" + freeLeft + " of 2 Free*";
 
 let welcomeText =
   "👋 *Welcome, " + (user.first_name || "Friend") + "!*\n\n" +
   "🎬 *Smart Video Bot Dashboard*\n" +
   "━━━━━━━━━━━━━━━━━━━━━\n" +
-  "🎁 *Free Videos Left:* *" + freeLeft + " of 2 Free Videos*\n" +
-  "💰 *My Points Balance:* *" + userPoints + " Points*\n" +
-  bonusBadge + "\n" +
+  memberBadge + "\n" +
+  "💰 *Points Balance:* *" + userPoints + " Points*\n" +
   "━━━━━━━━━━━━━━━━━━━━━\n" +
-  "📌 *Key Features:*\n" +
-  "• 🎁 *First 2 Videos FREE:* Stream right away with 0 points deducted!\n" +
-  "• 🎁 *Daily Bonus:* Tap *Daily Bonus* to claim free daily points.\n" +
-  "• 📂 *Categories & Random:* Explore by genre or get a random video.\n" +
-  "• 👥 *Refer & Earn:* Earn *10 Points* for every invited friend.\n" +
-  "• 💳 *Buy Points:* Instant UPI packages starting at *₹10 = 100 Points*.\n\n" +
-  "Tap *🎬 Get Video* below to start streaming 👇";
+  "📌 *Quick Highlights:*\n" +
+  "• 🎬 *Stream Videos:* Watch videos in Telegram player\n" +
+  "• 🎁 *Daily Rewards:* Claim daily bonus & spin wheel for free points\n" +
+  "• 👑 *VIP Pass:* Get unlimited streaming & zero locks via /vip\n" +
+  "• 🎟 *Redeem Codes:* Claim promotional gift codes via /redeem\n" +
+  "• 👥 *Refer & Earn:* *10 Points* per invited friend\n\n" +
+  "Tap *🎬 Get Video* below to start watching 👇";
 
 Bot.sendInlineKeyboard(buttons, welcomeText);
