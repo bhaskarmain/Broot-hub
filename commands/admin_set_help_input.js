@@ -1,0 +1,43 @@
+﻿/*CMD
+command: /admin_set_help_input
+help: Receives new admin username input
+need_reply: true
+auto_retry_time: 
+folder: 
+answer: ✏️ *Change Help Contact Admin Username*\n\nEnter the new Telegram username (with or without @, e.g. `CODEVEXA`):
+keyboard: 
+aliases: 
+group: 
+CMD*/
+
+let primaryAdmin = 9250034188;
+if (user.telegramid != primaryAdmin && user.telegramid != String(primaryAdmin)) {
+  Bot.sendMessage("🚫 *Access Denied.*");
+  return;
+}
+
+let newUsername = "";
+
+if (params && params === "default") {
+  newUsername = "CODEVEXA";
+} else {
+  newUsername = (message || "").trim().replace("@", "");
+}
+
+if (!newUsername || newUsername.length < 3) {
+  Bot.sendMessage("⚠️ Invalid username. Please send a valid Telegram username (at least 3 characters):");
+  Bot.run({ command: "/admin_set_help_input" });
+  return;
+}
+
+Bot.setProperty("help_admin_username", newUsername, "string");
+
+let buttons = [
+  [{ title: "💬 Help Settings", command: "/admin_help_settings" }],
+  [{ title: "🛠 Admin Dashboard", command: "/admin" }]
+];
+
+Bot.sendInlineKeyboard(
+  buttons,
+  "✅ *Admin Contact Username Updated Successfully!*\n\nNew Admin Username: *@" + newUsername + "*\nClickable URL: https://t.me/" + newUsername
+);
