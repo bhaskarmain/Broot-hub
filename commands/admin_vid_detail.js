@@ -56,6 +56,7 @@ let text =
   "━━━━━━━━━━━━━━━━━━━━━";
 
 let buttons = [
+  [{ title: "📂 Change Category", command: "/admin_vid_set_cat " + vid.id }],
   [{ title: "🗑 Delete This Video", command: "/admin_del_vid_do " + vid.id }],
   [
     { title: "🔙 Videos List", command: "/admin_manage_vids" },

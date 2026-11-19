@@ -58,10 +58,11 @@ if (!fileId) {
 let activeStorageChannel = Bot.getProperty("storage_channel_id") || "-1003856912131";
 let videos = Bot.getProperty("videos") || [];
 let newId = Date.now();
+let selectedCatId = User.getProperty("admin_upload_cat_id") || null;
 
 let newVid = {
   id: newId,
-  category_id: null,
+  category_id: selectedCatId,
   file_id: fileId,
   storage_channel_id: activeStorageChannel,
   storage_message_id: null,
@@ -76,6 +77,7 @@ let newVid = {
 
 videos.push(newVid);
 Bot.setProperty("videos", videos, "json");
+User.setProperty("admin_upload_cat_id", null, "integer");
 
 // Archive video to active Storage Channel
 try {

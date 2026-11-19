@@ -31,7 +31,16 @@ if (!cat) {
   return;
 }
 
+let videos = Bot.getProperty("videos") || [];
+let vCount = 0;
+for (let v = 0; v < videos.length; v++) {
+  if (videos[v].category_id == cat.id || (videos[v].category && String(videos[v].category).toLowerCase() === String(cat.name).toLowerCase())) {
+    vCount++;
+  }
+}
+
 let buttons = [
+  [{ title: "🎲 Test Random Stream (" + (cat.emoji || "📁") + " " + cat.name + ")", command: "/deliver_video cat_" + cat.id }],
   [{ title: "🗑 Delete Category (and its videos)", command: "/admin_del_cat_do " + cat.id }],
   [
     { title: "🔙 Categories List", command: "/admin_edit_cat" },
@@ -42,8 +51,9 @@ let buttons = [
 let text =
   "📂 *Category Details:*\n" +
   "━━━━━━━━━━━━━━━━━━━━━\n" +
-  "🆔 ID: `" + cat.id + "`\n" +
-  "🏷 Name: " + (cat.emoji || "📁") + " " + cat.name + "\n" +
+  "🆔 *ID:* `" + cat.id + "`\n" +
+  "🏷 *Name:* " + (cat.emoji || "📁") + " " + cat.name + "\n" +
+  "🎬 *Videos Count:* *" + vCount + " videos*\n" +
   "━━━━━━━━━━━━━━━━━━━━━\n" +
   "Select an action:";
 

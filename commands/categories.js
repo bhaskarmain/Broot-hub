@@ -1,6 +1,6 @@
 /*CMD
 command: /categories
-help: Browse videos by category and genres
+help: Browse videos by category and stream random video instantly
 need_reply: false
 auto_retry_time: 
 folder: 
@@ -13,23 +13,14 @@ CMD*/
 let categories = Bot.getProperty("categories") || [];
 let videos = Bot.getProperty("videos") || [];
 
-if (categories.length === 0) {
-  let buttons = [
-    [
-      { title: "🎬 Stream All Videos", command: "/get_video", style: "primary" },
-      { title: "🎲 Random Video", command: "/random_video", style: "primary" }
-    ],
-    [{ title: "🏠 Main Menu", command: "/start", style: "primary" }]
+if (!categories || categories.length === 0) {
+  categories = [
+    { id: 101, name: "Cartoon", emoji: "🎨" },
+    { id: 102, name: "Movies", emoji: "🍿" },
+    { id: 103, name: "Comedy", emoji: "😂" },
+    { id: 104, name: "Action", emoji: "💥" }
   ];
-
-  Bot.sendInlineKeyboard(
-    buttons,
-    "📂 *Video Categories*\n" +
-    "━━━━━━━━━━━━━━━━━━━━━\n" +
-    "All *" + videos.length + " videos* are currently available in the main video library.\n\n" +
-    "Tap *🎬 Stream All Videos* or *🎲 Random Video* below to start watching!"
-  );
-  return;
+  Bot.setProperty("categories", categories, "json");
 }
 
 // Calculate video counts per category
@@ -41,29 +32,40 @@ for (let v = 0; v < videos.length; v++) {
   }
 }
 
-let buttons = [];
+let catButtons = [];
 for (let i = 0; i < categories.length; i++) {
   let cat = categories[i];
   let count = catCounts[cat.id] || 0;
-  buttons.push([{
-    title: (cat.emoji || "📁") + " " + cat.name + " (" + count + " videos)",
-    command: "/view_cat " + cat.id,
+  let countStr = count > 0 ? " (" + count + ")" : "";
+  catButtons.push({
+    title: (cat.emoji || "📁") + " " + cat.name + countStr,
+    command: "/deliver_video cat_" + cat.id,
     style: "primary"
-  }]);
+  });
+}
+
+let buttons = [];
+for (let i = 0; i < catButtons.length; i += 2) {
+  if (i + 1 < catButtons.length) {
+    buttons.push([catButtons[i], catButtons[i + 1]]);
+  } else {
+    buttons.push([catButtons[i]]);
+  }
 }
 
 buttons.push([
-  { title: "🎲 Random Video", command: "/random_video", style: "primary" },
+  { title: "🎲 Any Random Video", command: "/deliver_video random", style: "primary" },
   { title: "🎬 All Videos", command: "/get_video", style: "primary" }
 ]);
 buttons.push([{ title: "🏠 Main Menu", command: "/start", style: "primary" }]);
 
 let text =
-  "📂 *Browse Video Categories*\n" +
+  "📂 *Choose a Video Category*\n" +
   "━━━━━━━━━━━━━━━━━━━━━\n" +
-  "Select a category below to explore and stream videos:\n\n" +
+  "👇 *Neeche di gayi kisi bhi Category par click karein:*\n" +
+  "Us category ki *Random Video* turant play hona shuru ho jayegi!\n\n" +
   "📊 *Total Categories:* *" + categories.length + "* | 🎬 *Total Library:* *" + videos.length + " videos*\n" +
   "━━━━━━━━━━━━━━━━━━━━━\n" +
-  "Tap your preferred category below 👇";
+  "Apni pasandida category select karein 👇";
 
 Bot.sendInlineKeyboard(buttons, text);

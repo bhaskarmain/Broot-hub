@@ -26,11 +26,18 @@ if (categories.length === 0) {
   return;
 }
 
+let videos = Bot.getProperty("videos") || [];
 let buttons = [];
 for (let i = 0; i < categories.length; i++) {
   let cat = categories[i];
+  let vCount = 0;
+  for (let v = 0; v < videos.length; v++) {
+    if (videos[v].category_id == cat.id || (videos[v].category && String(videos[v].category).toLowerCase() === String(cat.name).toLowerCase())) {
+      vCount++;
+    }
+  }
   buttons.push([{
-    title: (cat.emoji || "📁") + " " + cat.name,
+    title: (cat.emoji || "📁") + " " + cat.name + " (" + vCount + " videos)",
     command: "/admin_cat_detail " + cat.id
   }]);
 }
@@ -40,4 +47,4 @@ buttons.push([
   { title: "🔙 Admin Dashboard", command: "/admin" }
 ]);
 
-Bot.sendInlineKeyboard(buttons, "📂 *Manage Categories (Total: " + categories.length + ")*\n\nTap any category to view details or delete:");
+Bot.sendInlineKeyboard(buttons, "📂 *Manage Categories (Total: " + categories.length + ")*\n\nTap any category to view details, test random stream, or delete:");

@@ -44,10 +44,16 @@ if (!isRegistered) {
   let totalUsers = Bot.getProperty("total_users_count") || 0;
   Bot.setProperty("total_users_count", totalUsers + 1, "integer");
 
-  // Clear any old hardcoded seed categories
+  // Initialize default categories if not set
   let existingCats = Bot.getProperty("categories");
-  if (existingCats && existingCats.length === 3 && existingCats[0].name === "Action & Thriller") {
-    Bot.setProperty("categories", [], "json");
+  if (!existingCats || existingCats.length === 0) {
+    let defaultCats = [
+      { id: 101, name: "Cartoon", emoji: "🎨" },
+      { id: 102, name: "Movies", emoji: "🍿" },
+      { id: 103, name: "Comedy", emoji: "😂" },
+      { id: 104, name: "Action", emoji: "💥" }
+    ];
+    Bot.setProperty("categories", defaultCats, "json");
   }
 
   // Initialize default storage channel if not set

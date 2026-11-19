@@ -112,6 +112,25 @@ if (catFilter) {
         break;
       }
     }
+  } else {
+    let catDisplayName = "Selected Category";
+    let categories = Bot.getProperty("categories") || [];
+    for (let c = 0; c < categories.length; c++) {
+      if (categories[c].id === catFilter) {
+        catDisplayName = (categories[c].emoji || "📁") + " " + categories[c].name;
+        break;
+      }
+    }
+    let buttons = [
+      [{ title: "📂 Choose Another Category", command: "/categories", style: "primary" }],
+      [{ title: "🎲 Watch Any Video", command: "/deliver_video random", style: "primary" }],
+      [{ title: "🏠 Main Menu", command: "/start", style: "primary" }]
+    ];
+    Bot.sendInlineKeyboard(
+      buttons,
+      "⚠️ *No videos in " + catDisplayName + " yet!*\n\nIs category mein abhi tak koi video upload nahi hui hai. Kripya koi dusri category choose karein ya All Random Video dekhein!"
+    );
+    return;
   }
 }
 
@@ -132,7 +151,7 @@ for (let i = 0; i < targetPool.length; i++) {
   }
 }
 
-if (mode === "random") {
+if (mode === "random" || mode === "category") {
   let pool = brandNewVideos.length > 0 ? brandNewVideos : targetPool;
   nextVideo = pool[Math.floor(Math.random() * pool.length)];
 } else if (brandNewVideos.length > 0) {
@@ -280,7 +299,7 @@ let favBtnTitle = isFav ? "⭐ Favorited (Tap to Remove)" : "⭐ Save to Favorit
 let inlineKeyboard = [];
 if (catFilter) {
   inlineKeyboard.push([
-    { text: "🎬 Next in " + (categoryName || "Category"), callback_data: "/deliver_video cat_" + catFilter, style: "primary" },
+    { text: "🎲 Next " + (categoryName || "Category") + " Video", callback_data: "/deliver_video cat_" + catFilter, style: "primary" },
     { text: "📂 Categories", callback_data: "/categories", style: "primary" }
   ]);
 } else if (mode === "random") {

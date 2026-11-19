@@ -1,6 +1,6 @@
 ﻿/*CMD
 command: /admin_bulk_upload
-help: Bulk Video Upload - Directly Start Uploading Multiple Videos
+help: Bulk Video Upload - Step 1: Select Category for batch
 need_reply: false
 auto_retry_time: 
 folder: 
@@ -16,23 +16,46 @@ if (user.telegramid != primaryAdmin && user.telegramid != String(primaryAdmin)) 
   return;
 }
 
-User.setProperty("admin_bulk_mode", true, "boolean");
-User.setProperty("admin_bulk_cat_id", null, "integer");
-User.setProperty("admin_bulk_uploaded", 0, "integer");
-User.setProperty("admin_bulk_failed", 0, "integer");
+let categories = Bot.getProperty("categories") || [];
+if (!categories || categories.length === 0) {
+  categories = [
+    { id: 101, name: "Cartoon", emoji: "🎨" },
+    { id: 102, name: "Movies", emoji: "🍿" },
+    { id: 103, name: "Comedy", emoji: "😂" },
+    { id: 104, name: "Action", emoji: "💥" }
+  ];
+  Bot.setProperty("categories", categories, "json");
+}
 
-let buttons = [
-  [{ title: "🏁 Finish Bulk Upload", command: "/admin_bulk_finish" }],
-  [{ title: "❌ Cancel & Return", command: "/admin" }]
-];
+let buttons = [];
+let row = [];
+for (let i = 0; i < categories.length; i++) {
+  let cat = categories[i];
+  row.push({
+    title: (cat.emoji || "📁") + " " + cat.name,
+    command: "/admin_bulk_start " + cat.id
+  });
+  if (row.length === 2) {
+    buttons.push(row);
+    row = [];
+  }
+}
+if (row.length > 0) buttons.push(row);
+
+buttons.push([
+  { title: "📁 General (No Category)", command: "/admin_bulk_start 0" }
+]);
+buttons.push([
+  { title: "➕ Add Category", command: "/admin_add_cat" },
+  { title: "🔙 Admin Menu", command: "/admin" }
+]);
 
 let text =
-  "📦 *Bulk Video Upload Mode Active!*\n" +
+  "📦 *Bulk Video Upload — Select Category*\n" +
   "━━━━━━━━━━━━━━━━━━━━━\n" +
-  "👉 Send or forward multiple **MP4 or MOV videos** into this chat (one by one or select multiple and forward).\n\n" +
-  "• Titles are automatically extracted from your captions or filenames.\n" +
-  "• Duplicate videos are automatically skipped.\n" +
-  "• Each video will be saved directly into your video library.\n\n" +
-  "Tap **🏁 Finish Bulk Upload** below when you are done! 👇";
+  "👉 Is batch ki saari videos kis Category mein upload karni hain?\n\n" +
+  "• Category choose karte hi aap ek saath multiple videos forward kar sakenge.\n" +
+  "• Saari videos directly us category (e.g. 🎨 Cartoon) mein save hongi!\n" +
+  "━━━━━━━━━━━━━━━━━━━━━";
 
 Bot.sendInlineKeyboard(buttons, text);
